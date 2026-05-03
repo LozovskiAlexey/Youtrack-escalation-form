@@ -38,15 +38,6 @@
       },
       "fieldMappings": [
         {
-          "from": "Reproduction Steps",
-          "to": "Reproduction Steps",
-          "mode": "text",
-          "fallback": "See original support issue: {{source.idReadable}}",
-          "onlyWhen": {
-            "form.issueType": "Bug"
-          }
-        },
-        {
           "from": "Environment",
           "to": "Environment",
           "mode": "enumByName",
@@ -62,6 +53,10 @@
         }
       ],
       "descriptionSections": [
+        {
+          "title": "Original description",
+          "source": "description"
+        },
         {
           "title": "Steps to reproduce",
           "sourceField": "Reproduction Steps",
