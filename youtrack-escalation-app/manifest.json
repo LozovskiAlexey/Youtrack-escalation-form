@@ -1,0 +1,23 @@
+{
+  "name": "youtrack-escalation-app",
+  "title": "YouTrack Escalation App",
+  "description": "Adds an embedded escalation form to support issues.",
+  "version": "1.2.2",
+  "vendor": {
+    "name": "Aleksei Lozovskii"
+  },
+  "settingsSchemaPath": "settings.json",
+  "widgets": [
+    {
+      "key": "escalation-form",
+      "name": "Custom Action",
+      "description": "Run configurable action form for the current issue",
+      "extensionPoint": "ISSUE_OPTIONS_MENU_ITEM",
+      "indexPath": "widgets/escalation-form/index.html",
+      "expectedDimensions": {
+        "height": 520,
+        "width": 640
+      }
+    }
+  ]
+}

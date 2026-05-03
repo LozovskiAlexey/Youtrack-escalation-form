@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "Escalation App Settings",
+  "description": "Configuration for reusable escalation actions",
+  "properties": {
+    "bridgeUrl": {
+      "title": "Bridge URL",
+      "type": "string",
+      "description": "Backend bridge service URL",
+      "minLength": 1
+    },
+    "configUrl": {
+      "title": "Actions Config URL",
+      "type": "string",
+      "description": "Raw URL to actions.json",
+      "minLength": 1,
+      "format": "uri"
+    }
+  },
+  "required": ["bridgeUrl", "configUrl"]
+}
