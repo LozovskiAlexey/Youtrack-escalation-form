@@ -1,0 +1,140 @@
+{
+  "actions": [
+    {
+      "id": "escalate-to-development",
+      "title": "Escalate to Development",
+      "sourceProject": "WS",
+      "targetProjectId": "0-0",
+      "targetProjectKey": "WEAP",
+      "visibleWhen": {
+        "State": "Confirmed",
+        "Affected Area": "Backend"
+      },
+      "formFields": [
+        {
+          "name": "issueType",
+          "label": "Issue type",
+          "type": "select",
+          "required": true,
+          "options": ["Bug", "Task"],
+          "default": "Bug"
+        },
+        {
+          "name": "reason",
+          "label": "Escalation reason",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "includeSteps",
+          "label": "Include reproduction steps",
+          "type": "checkbox",
+          "default": true
+        }
+      ],
+      "createIssue": {
+        "summaryTemplate": "[Support {{source.idReadable}}] {{source.summary}}",
+        "descriptionTemplate": "Created from support issue: {{source.idReadable}}\n\nEscalation reason:\n{{form.reason}}\n\nIssue type: {{form.issueType}}\n\nEnvironment: {{source.fields.Environment}}\n\nCustomer impact: {{source.fields.Customer Impact}}\n\nOriginal description:\n{{source.description}}",
+        "state": "To Do"
+      },
+      "fieldMappings": [
+        {
+          "from": "Reproduction Steps",
+          "to": "Reproduction Steps",
+          "mode": "text",
+          "fallback": "See original support issue: {{source.idReadable}}",
+          "onlyWhen": {
+            "form.issueType": "Bug"
+          }
+        },
+        {
+          "from": "Environment",
+          "to": "Environment",
+          "mode": "enumByName",
+          "targetType": "SingleEnumIssueCustomField",
+          "required": false
+        },
+        {
+          "from": "Customer Impact",
+          "to": "Customer Impact",
+          "mode": "enumByName",
+          "targetType": "SingleEnumIssueCustomField",
+          "required": false
+        }
+      ],
+      "descriptionSections": [
+        {
+          "title": "Steps to reproduce",
+          "sourceField": "Reproduction Steps",
+          "includeWhen": {
+            "form.includeSteps": true
+          }
+        },
+        {
+          "title": "Expected result",
+          "sourceField": "Expected Result"
+        },
+        {
+          "title": "Actual result",
+          "sourceField": "Actual Result"
+        }
+      ],
+      "afterSubmit": [
+        {
+          "type": "linkIssues",
+          "linkType": "relates to"
+        },
+        {
+          "type": "updateSourceState",
+          "state": "Escalated to Dev"
+        },
+        {
+          "type": "commentSource",
+          "template": "Escalated to development: {{target.idReadable}}\n\nReason:\n{{form.reason}}\n\nEnvironment: {{source.fields.Environment}}\n\nCustomer impact: {{source.fields.Customer Impact}}"
+        }
+      ]
+    },
+    {
+      "id": "create-doc-task",
+      "title": "Create Documentation Task",
+      "sourceProject": "WS",
+      "targetProjectId": "0-0",
+      "targetProjectKey": "WEAP",
+      "visibleWhen": {
+        "State": "Confirmed"
+      },
+      "formFields": [
+        {
+          "name": "docType",
+          "label": "Documentation type",
+          "type": "select",
+          "required": true,
+          "options": ["User Guide", "API Docs", "Release Notes"],
+          "default": "User Guide"
+        },
+        {
+          "name": "details",
+          "label": "Details",
+          "type": "text",
+          "required": true
+        }
+      ],
+      "createIssue": {
+        "summaryTemplate": "[Docs] {{source.summary}}",
+        "descriptionTemplate": "Documentation request from {{source.idReadable}}\n\nType: {{form.docType}}\n\nDetails:\n{{form.details}}",
+        "state": "To Do"
+      },
+      "fieldMappings": [],
+      "afterSubmit": [
+        {
+          "type": "linkIssues",
+          "linkType": "relates to"
+        },
+        {
+          "type": "commentSource",
+          "template": "Documentation task created: {{target.idReadable}}\n\nDetails:\n{{form.details}}"
+        }
+      ]
+    }
+  ]
+}
