@@ -1,0 +1,497 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Configured Action Form</title>
+
+  <style>
+    :root {
+      --bg: #ffffff;
+      --card: #ffffff;
+      --text: #1f2329;
+      --muted: #6b7280;
+      --border: #dfe3e8;
+      --field-bg: #ffffff;
+      --field-border: #cfd6dd;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #b91c1c;
+      --success: #15803d;
+    }
+
+    /* in case dark mode selected - set dark mode to form */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1f2023;
+        --card: #24262a;
+        --text: #f3f4f6;
+        --muted: #a1a7b3;
+        --border: #3a3d44;
+        --field-bg: #2f3136;
+        --field-border: #4a4d55;
+        --primary: #4f8cff;
+        --primary-hover: #6ea2ff;
+        --danger: #ff7373;
+        --success: #7ee787;
+      }
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .shell {
+      padding: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    select,
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      font-size: 14px;
+      border: 1px solid var(--field-border);
+      border-radius: 8px;
+      background: var(--field-bg);
+      color: var(--text);
+      outline: none;
+    }
+
+    select:focus,
+    textarea:focus {
+      border-color: var(--primary);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .meta {
+      margin: -4px 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 14px 0 18px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .checkbox-row input {
+      width: auto;
+      margin: 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--primary-hover);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .error {
+      color: var(--danger);
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .success {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-align: center;
+      padding: 28px 20px;
+    }
+
+    .success h3 {
+      margin: 0 0 8px;
+      color: var(--success);
+    }
+
+    .success p {
+      color: var(--muted);
+      margin: 0 0 18px;
+    }
+
+    .skeleton {
+      background: var(--border);
+      height: 14px;
+      border-radius: 6px;
+      margin-top: 12px;
+      animation: pulse 1.4s infinite;
+    }
+
+    .skeleton.large {
+      width: 60%;
+      height: 22px;
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 0.45;
+      }
+
+      50% {
+        opacity: 0.9;
+      }
+
+      100% {
+        opacity: 0.45;
+      }
+    }
+
+    .fade {
+      animation: fadeIn 0.18s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+    <div id="content">
+      <div class="skeleton large"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </div>
+  </main>
+
+  <script type="module">
+    const host = await YTApp.register();
+
+    let BRIDGE_URL = '';        // server url 
+    let actions = [];           // store action from config
+    let selectedAction = null;  
+
+    init();
+
+    async function init() {
+      try {
+        // get app settings from YouTrack (ServerUrl, URL to actions config file)
+        const settings = await host.fetchApp('settings-handler/settings', {
+          scope: true
+        });
+
+        BRIDGE_URL = settings.bridgeUrl;
+
+        if (!BRIDGE_URL) {
+          throw new Error('Bridge URL is not configured');
+        }
+
+        if (!settings.configUrl) {
+          throw new Error('Config URL is not configured');
+        }
+
+        // load actions.json from Git repo 
+        const configResponse = await fetch(settings.configUrl, {
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+
+        if (!configResponse.ok) {
+          throw new Error(`Failed to load actions config: ${configResponse.status}`);
+        }
+
+        const config = await configResponse.json();
+        actions = config.actions || [];
+        if (!actions.length) {
+          throw new Error('No actions configured');
+        }
+
+        renderUI();
+      } catch (error) {
+        renderFatalError(error.message);
+      }
+    }
+
+    // Form render - generates card with 
+    function renderUI() {
+      selectedAction = actions[0];  // get default action
+
+      const container = document.getElementById('content');
+
+      container.innerHTML = `
+      <div class="card fade">
+        <div class="form-group">
+          <label>Action</label>
+          <select id="actionSelect"></select>
+        </div>
+
+        <div class="meta">
+          Target project: <b id="targetProject"></b>
+        </div>
+
+        <div id="form"></div>
+
+        <button id="submitButton">Run action</button>
+
+        <div id="error" class="error"></div>
+      </div>
+    `;
+
+      renderActionSelector();
+      renderSelectedAction();
+      bindSubmit();
+    }
+
+    function renderActionSelector() {
+      const select = document.getElementById('actionSelect');
+
+      for (const action of actions) {
+        const option = document.createElement('option');
+        option.value = action.id;
+        option.textContent = action.title;
+        select.appendChild(option);
+      }
+
+      select.addEventListener('change', () => {
+        selectedAction = actions.find(a => a.id === select.value);
+        renderSelectedAction();
+      });
+    }
+
+    function renderSelectedAction() {
+      document.getElementById('targetProject').textContent =
+        selectedAction.targetProjectKey;
+
+      renderForm(selectedAction.formFields || []);
+    }
+
+    function renderForm(fields = []) {
+      const form = document.getElementById('form');
+      form.innerHTML = '';
+
+      for (const field of fields) {
+        if (field.type === 'select') {
+          form.appendChild(renderSelect(field));
+        }
+
+        if (field.type === 'text') {
+          form.appendChild(renderText(field));
+        }
+
+        if (field.type === 'checkbox') {
+          form.appendChild(renderCheckbox(field));
+        }
+      }
+    }
+
+    function renderSelect(field) {
+      const group = document.createElement('div');
+      group.className = 'form-group';
+
+      const label = document.createElement('label');
+      label.textContent = field.label;
+
+      const select = document.createElement('select');
+      select.name = field.name;
+
+      for (const optionValue of field.options || []) {
+        const option = document.createElement('option');
+        option.value = optionValue;
+        option.textContent = optionValue;
+
+        if (optionValue === field.default) {
+          option.selected = true;
+        }
+
+        select.appendChild(option);
+      }
+
+      group.appendChild(label);
+      group.appendChild(select);
+      return group;
+    }
+
+    function renderText(field) {
+      const group = document.createElement('div');
+      group.className = 'form-group';
+
+      const label = document.createElement('label');
+      label.textContent = field.label;
+
+      const textarea = document.createElement('textarea');
+      textarea.name = field.name;
+
+      group.appendChild(label);
+      group.appendChild(textarea);
+      return group;
+    }
+
+    function renderCheckbox(field) {
+      const wrapper = document.createElement('label');
+      wrapper.className = 'checkbox-row';
+
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.name = field.name;
+      input.checked = Boolean(field.default);
+
+      const text = document.createElement('span');
+      text.textContent = field.label;
+
+      wrapper.appendChild(input);
+      wrapper.appendChild(text);
+
+      return wrapper;
+    }
+
+    function collectFormData(fields) {
+      const values = {};
+
+      for (const field of fields) {
+        const el = document.querySelector(`[name="${field.name}"]`);
+
+        values[field.name] =
+          field.type === 'checkbox' ? el.checked : el.value;
+
+        if (
+          field.required &&
+          field.type !== 'checkbox' &&
+          !String(values[field.name]).trim()
+        ) {
+          throw new Error(`${field.label} is required`);
+        }
+      }
+
+      return values;
+    }
+
+    function bindSubmit() {
+      document
+        .getElementById('submitButton')
+        .addEventListener('click', async () => {
+          const button = document.getElementById('submitButton');
+
+          button.disabled = true;
+          button.textContent = 'Running...';
+          showError('');
+
+          try {
+            const issue = YTApp.entity;
+
+            if (!issue || !issue.id) {
+              throw new Error('Cannot detect current issue from YouTrack context');
+            }
+
+            const formData = collectFormData(selectedAction.formFields);
+
+            const response = await fetch(`${BRIDGE_URL}/api/action-submit`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'ngrok-skip-browser-warning': 'true' 
+              },
+              body: JSON.stringify({
+                action: selectedAction,
+                sourceIssueId: issue.id,
+                form: formData
+              })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+              throw new Error(result.error || 'Action failed');
+            }
+
+            showSuccess(result.createdIssue);
+          } catch (error) {
+            showError(error.message);
+          } finally {
+            if (document.body.contains(button)) {
+              button.disabled = false;
+              button.textContent = 'Run action';
+            }
+          }
+        });
+    }
+
+    function showSuccess(issueId) {
+      document.getElementById('content').innerHTML = `
+      <div class="success fade">
+        <h3>Done</h3>
+        <p>Created issue: <b>${issueId}</b></p>
+        <button onclick="closeWidget()">Close</button>
+      </div>
+    `;
+    }
+
+    function renderFatalError(message) {
+      document.getElementById('content').innerHTML = `
+      <div class="card fade">
+        <div class="error">${message}</div>
+      </div>
+    `;
+    }
+
+    window.closeWidget = () => {
+      if (typeof host.closeWidget === 'function') {
+        host.closeWidget();
+      }
+    };
+
+    function showError(message) {
+      const el = document.getElementById('error');
+      if (el) {
+        el.textContent = message;
+      }
+    }
+  </script>
+</body>
+
+</html>
