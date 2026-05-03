@@ -1,0 +1,93 @@
+{
+  "actions": [
+    {
+      "id": "unique-action-id",
+      "title": "Human readable action title",
+      "sourceProject": "SOURCE_PROJECT_KEY",
+      "targetProjectKey": "TARGET_PROJECT_KEY",
+      "visibleWhen": {
+        "Custom Field Name": "Expected Value"
+      },
+      "formFields": [
+        {
+          "name": "fieldName",
+          "label": "Field label",
+          "type": "select",
+          "required": true,
+          "options": ["Option 1", "Option 2"],
+          "default": "Option 1"
+        },
+        {
+          "name": "textFieldName",
+          "label": "Text field label",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "checkboxFieldName",
+          "label": "Checkbox label",
+          "type": "checkbox",
+          "default": true
+        }
+      ],
+      "createIssue": {
+        "summaryTemplate": "[{{source.idReadable}}] {{source.summary}}",
+        "descriptionTemplate": "Created from {{source.idReadable}}\n\nReason:\n{{form.textFieldName}}\n\nOriginal description:\n{{source.description}}",
+        "state": "To Do"
+      },
+      "fieldMappings": [
+        {
+          "from": "Source Text Field (Project Settings → Custom Fields → Field Name)",
+          "to": "Target Text Field (Project Settings → Custom Fields → Field Name)",
+          "mode": "text",
+          "fallback": "Fallback text with {{source.idReadable}}",
+          "required": false,
+          "onlyWhen": {
+            "form.fieldName": "Option 1"
+          }
+        },
+        {
+          "from": "Source Enum Field",
+          "to": "Target Enum Field",
+          "mode": "enumByName",
+          "targetType": "SingleEnumIssueCustomField",
+          "required": false
+        },
+        {
+          "from": "Source Enum Field",
+          "to": "Target Enum Field",
+          "mode": "enumMap",
+          "targetType": "SingleEnumIssueCustomField",
+          "required": false,
+          "map": {
+            "Source Value 1": "Target Value 1",
+            "Source Value 2": "Target Value 2"
+          }
+        }
+      ],
+      "descriptionSections": [
+        {
+          "title": "Section title",
+          "sourceField": "Source Text Field",
+          "includeWhen": {
+            "form.checkboxFieldName": true
+          }
+        }
+      ],
+      "afterSubmit": [
+        {
+          "type": "linkIssues",
+          "linkType": "relates to"
+        },
+        {
+          "type": "updateSourceState",
+          "state": "New Source State"
+        },
+        {
+          "type": "commentSource",
+          "template": "Created target issue: {{target.idReadable}}\n\nReason:\n{{form.textFieldName}}"
+        }
+      ]
+    }
+  ]
+}
