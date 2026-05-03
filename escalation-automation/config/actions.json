@@ -4,7 +4,6 @@
       "id": "escalate-to-development",
       "title": "Escalate to Development",
       "sourceProject": "WS",
-      "targetProjectId": "0-0",
       "targetProjectKey": "WEAP",
       "visibleWhen": {
         "State": "Confirmed",
@@ -34,19 +33,10 @@
       ],
       "createIssue": {
         "summaryTemplate": "[Support {{source.idReadable}}] {{source.summary}}",
-        "descriptionTemplate": "Created from support issue: {{source.idReadable}}\n\nEscalation reason:\n{{form.reason}}\n\nIssue type: {{form.issueType}}\n\nEnvironment: {{source.fields.Environment}}\n\nCustomer impact: {{source.fields.Customer Impact}}\n\nOriginal description:\n{{source.description}}",
+        "descriptionTemplate": "Created from support issue: {{source.idReadable}}\n\nEscalation reason:\n{{form.reason}}\n\nIssue type: {{form.issueType}}\n\nEnvironment: {{source.fields.Environment}}\n\nCustomer impact: {{source.fields.Customer Impact}}",
         "state": "To Do"
       },
       "fieldMappings": [
-        {
-          "from": "Reproduction Steps",
-          "to": "Reproduction Steps",
-          "mode": "text",
-          "fallback": "See original support issue: {{source.idReadable}}",
-          "onlyWhen": {
-            "form.issueType": "Bug"
-          }
-        },
         {
           "from": "Environment",
           "to": "Environment",
@@ -64,6 +54,10 @@
       ],
       "descriptionSections": [
         {
+          "title": "Original description",
+          "source": "description"
+        },
+        {
           "title": "Steps to reproduce",
           "sourceField": "Reproduction Steps",
           "includeWhen": {
@@ -78,7 +72,7 @@
           "title": "Actual result",
           "sourceField": "Actual Result"
         }
-      ],
+    ],
       "afterSubmit": [
         {
           "type": "linkIssues",
