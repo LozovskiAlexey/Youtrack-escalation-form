@@ -63,10 +63,6 @@
       ],
       "descriptionSections": [
         {
-          "title": "Original description",
-          "source": "description"
-        },
-        {
           "title": "Steps to reproduce",
           "sourceField": "Reproduction Steps",
           "includeWhen": {
