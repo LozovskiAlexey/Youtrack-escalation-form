@@ -66,6 +66,11 @@ The escalation process becomes:
 3. Fill in the form
 4. Submit
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/89aa7931-4b89-47e9-9643-9cdcd9f29a6f" width="510"/>
+  <img src="https://github.com/user-attachments/assets/10e3f72a-95a3-4e95-b5ad-98f616260b55" width="490"/>
+</p>
+
 And the system automatically:
 - creates a development issue
 - transfers required data
@@ -116,6 +121,10 @@ Example link: https://raw.githubusercontent.com/<user>/<repo>/<branch>/actions.j
 ```
 This value will be used as _**configUrl**_ 
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/28f1349e-5793-4a48-9a27-3621d2c57759" width="510"/>
+</p>
+
 ## Build and upload the YouTrack App 
 
 The app package must contain: 
@@ -132,6 +141,10 @@ Pay attemtion: once you've updated any of youtrack-escalation-app files make sur
 ```
 Upload zip to YouTrack (Administration → Apps → Upload App)
 After uploading, open app settings and configure: _**configUrl**_ , _**bridgeUrl**_ in app settings tab
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/da152858-c177-4102-a34d-42d793eca965" width="510"/>
+</p>
 
 ## Notes
  - Custom field names are case-sensitive.
