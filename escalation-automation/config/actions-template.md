@@ -84,7 +84,11 @@ Example:
 The state must exist in the target project and be available.
 ```
 Example:  
-add picture
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/28b5956c-82e0-46ea-8592-2900fee5ad46" width="650"/>
+
+</p>
 
 
 ### Field Mapping
