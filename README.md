@@ -1,7 +1,7 @@
 # YouTrack Escalation Form
 
 A configurable YouTrack App that adds custom action forms to issues and creates target issues in another project using a reusable JSON configuration.
-Demo: [Video](https://drive.google.com/file/d/10spDqEug5Ac9glzus9drfszShY4dBqLC/view?usp=drive_link)
+Demo: [Video](https://drive.google.com/file/d/1PxoC8IP-WBZMo4VqcfpVNod3Y1xF9ndm/view?usp=drive_link)
 
 ## Problem Statement
 
